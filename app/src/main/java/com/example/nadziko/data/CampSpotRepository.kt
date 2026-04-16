@@ -33,4 +33,8 @@ class CampSpotRepository(
     suspend fun deleteSpotById(id: Int) {
         campSpotDao.deleteSpotById(id)
     }
+
+    suspend fun updateSpot(spot: CampSpot) {
+        campSpotDao.updateSpot(spot)
+    }
 }

@@ -41,6 +41,11 @@ class CampSpotViewModel(
             repository.deleteSpotById(id)
         }
     }
+    fun updateSpot(spot: CampSpot) {
+        viewModelScope.launch {
+            repository.updateSpot(spot)
+        }
+    }
 }
 
 class CampSpotViewModelFactory(

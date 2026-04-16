@@ -26,6 +26,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.nadziko.data.CampSpot
 import com.example.nadziko.ui.CampSpotViewModel
 import com.example.nadziko.ui.CampSpotViewModelFactory
 import com.example.nadziko.ui.theme.NaDzikoTheme
@@ -38,26 +39,82 @@ class AddCampSpotActivity : ComponentActivity() {
         )
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        val spotId = intent.getIntExtra("spot_id", -1)
+        val isEditMode = spotId != -1
+
         setContent {
             NaDzikoTheme {
-                AddCampSpotScreen(
-                    onBack = { finish() },
-                    onSave = { name, locationName, description, accessTips, packingTips ->
-                        viewModel.addSpot(
-                            name = name,
-                            locationName = locationName,
-                            description = description,
-                            accessTips = accessTips,
-                            packingTips = packingTips
-                        )
-                        setResult(Activity.RESULT_OK)
-                        finish()
+                var existingSpot by remember { mutableStateOf<CampSpot?>(null) }
+                var loaded by remember { mutableStateOf(!isEditMode) }
+
+                LaunchedEffect(spotId) {
+                    if (isEditMode) {
+                        existingSpot = viewModel.getSpotById(spotId)
                     }
-                )
+                    loaded = true
+                }
+
+                if (!loaded) {
+                    Scaffold(
+                        topBar = {
+                            TopAppBar(
+                                title = { Text("Ładowanie...") },
+                                navigationIcon = {
+                                    IconButton(onClick = { finish() }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.ArrowBack,
+                                            contentDescription = "Wstecz"
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    ) { padding ->
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(padding)
+                                .padding(16.dp)
+                        ) {
+                            Text("Ładowanie danych...")
+                        }
+                    }
+                } else {
+                    AddCampSpotScreen(
+                        isEditMode = isEditMode,
+                        existingSpot = existingSpot,
+                        onBack = { finish() },
+                        onSave = { name, locationName, description, accessTips, packingTips ->
+                            if (isEditMode && existingSpot != null) {
+                                viewModel.updateSpot(
+                                    existingSpot!!.copy(
+                                        name = name,
+                                        locationName = locationName,
+                                        description = description,
+                                        accessTips = accessTips,
+                                        packingTips = packingTips
+                                    )
+                                )
+                            } else {
+                                viewModel.addSpot(
+                                    name = name,
+                                    locationName = locationName,
+                                    description = description,
+                                    accessTips = accessTips,
+                                    packingTips = packingTips
+                                )
+                            }
+
+                            setResult(Activity.RESULT_OK)
+                            finish()
+                        }
+                    )
+                }
             }
         }
     }
@@ -66,6 +123,8 @@ class AddCampSpotActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddCampSpotScreen(
+    isEditMode: Boolean,
+    existingSpot: CampSpot?,
     onBack: () -> Unit,
     onSave: (String, String, String, String, String) -> Unit
 ) {
@@ -78,10 +137,22 @@ fun AddCampSpotScreen(
     var nameError by remember { mutableStateOf(false) }
     var locationError by remember { mutableStateOf(false) }
 
+    LaunchedEffect(existingSpot) {
+        if (existingSpot != null) {
+            name = existingSpot.name
+            locationName = existingSpot.locationName
+            description = existingSpot.description
+            accessTips = existingSpot.accessTips
+            packingTips = existingSpot.packingTips
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Dodaj miejsce") },
+                title = {
+                    Text(if (isEditMode) "Edytuj miejsce" else "Dodaj miejsce")
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
@@ -163,7 +234,7 @@ fun AddCampSpotScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Zapisz")
+                Text(if (isEditMode) "Zapisz zmiany" else "Zapisz")
             }
         }
     }

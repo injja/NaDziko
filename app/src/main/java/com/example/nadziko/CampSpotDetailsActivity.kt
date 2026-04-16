@@ -1,5 +1,6 @@
 package com.example.nadziko
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -64,6 +66,11 @@ class CampSpotDetailsActivity : ComponentActivity() {
                     onDelete = {
                         viewModel.deleteSpotById(spotId)
                         finish()
+                    },
+                    onEdit = {
+                        val intent = Intent(this, AddCampSpotActivity::class.java)
+                        intent.putExtra("spot_id", spotId)
+                        startActivity(intent)
                     }
                 )
             }
@@ -82,7 +89,8 @@ fun CampSpotDetailsScreen(
     rating: Float,
     notFound: Boolean,
     onBack: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onEdit: () -> Unit
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
 
@@ -130,6 +138,12 @@ fun CampSpotDetailsScreen(
                         Icon(
                             imageVector = Icons.Filled.Delete,
                             contentDescription = "Usuń"
+                        )
+                    }
+                    IconButton(onClick = onEdit) {
+                        Icon(
+                            imageVector = Icons.Filled.Edit,
+                            contentDescription = "Edytuj"
                         )
                     }
                 }
