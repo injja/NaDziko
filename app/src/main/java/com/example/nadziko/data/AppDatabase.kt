@@ -13,6 +13,8 @@ import androidx.room.RoomDatabase
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun campSpotDao(): CampSpotDao
+    abstract fun ratingDao(): RatingDao
+    abstract fun userDao(): UserDao
 
     companion object {
         @Volatile
