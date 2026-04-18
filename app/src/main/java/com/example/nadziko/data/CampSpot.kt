@@ -12,5 +12,6 @@ data class CampSpot(
     val description: String,
     val accessTips: String,
     val packingTips: String,
-    val rating: Float
+    val rating: Float,
+    val createdBy: User
 )
