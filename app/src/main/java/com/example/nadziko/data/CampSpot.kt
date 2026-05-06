@@ -20,6 +20,8 @@ data class CampSpot(
     val id: Int = 0,
     val name: String,
     val locationName: String,
+    val latitude: Double,
+    val longitude: Double,
     val description: String,
     val accessTips: String,
     val packingTips: String,

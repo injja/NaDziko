@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -30,6 +31,12 @@ import com.example.nadziko.data.CampSpot
 import com.example.nadziko.ui.CampSpotViewModel
 import com.example.nadziko.ui.CampSpotViewModelFactory
 import com.example.nadziko.ui.theme.NaDzikoTheme
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 
 class AddCampSpotActivity : ComponentActivity() {
 
@@ -93,7 +100,7 @@ class AddCampSpotActivity : ComponentActivity() {
                         isEditMode = isEditMode,
                         existingSpot = existingSpot,
                         onBack = { finish() },
-                        onSave = { name, locationName, description, accessTips, packingTips ->
+                        onSave = { name, locationName, description, accessTips, packingTips, lat, lng ->
                             if (isEditMode && existingSpot != null) {
                                 viewModel.updateSpot(
                                     existingSpot!!.copy(
@@ -101,7 +108,9 @@ class AddCampSpotActivity : ComponentActivity() {
                                         locationName = locationName,
                                         description = description,
                                         accessTips = accessTips,
-                                        packingTips = packingTips
+                                        packingTips = packingTips,
+                                        latitude = lat,
+                                        longitude = lng
                                     )
                                 )
                             } else {
@@ -111,7 +120,9 @@ class AddCampSpotActivity : ComponentActivity() {
                                     description = description,
                                     accessTips = accessTips,
                                     packingTips = packingTips,
-                                    createdBy = userId
+                                    createdBy = userId,
+                                    latitude = lat,
+                                    longitude = lng
                                 )
                             }
 
@@ -131,16 +142,24 @@ fun AddCampSpotScreen(
     isEditMode: Boolean,
     existingSpot: CampSpot?,
     onBack: () -> Unit,
-    onSave: (String, String, String, String, String) -> Unit
+    onSave: (String, String, String, String, String, Double, Double) -> Unit
 ) {
     var name by remember { mutableStateOf("") }
     var locationName by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var accessTips by remember { mutableStateOf("") }
     var packingTips by remember { mutableStateOf("") }
+    
+    // Default location (central Poland)
+    var latitude by remember { mutableDoubleStateOf(52.0) }
+    var longitude by remember { mutableDoubleStateOf(19.0) }
 
     var nameError by remember { mutableStateOf(false) }
     var locationError by remember { mutableStateOf(false) }
+
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(LatLng(latitude, longitude), 6f)
+    }
 
     LaunchedEffect(existingSpot) {
         if (existingSpot != null) {
@@ -149,6 +168,9 @@ fun AddCampSpotScreen(
             description = existingSpot.description
             accessTips = existingSpot.accessTips
             packingTips = existingSpot.packingTips
+            latitude = existingSpot.latitude
+            longitude = existingSpot.longitude
+            cameraPositionState.position = CameraPosition.fromLatLngZoom(LatLng(latitude, longitude), 13f)
         }
     }
 
@@ -198,13 +220,32 @@ fun AddCampSpotScreen(
                     locationName = it
                     locationError = false
                 },
-                label = { Text("Lokalizacja") },
+                label = { Text("Lokalizacja (region/miasto)") },
                 isError = locationError,
                 modifier = Modifier.fillMaxWidth()
             )
 
             if (locationError) {
                 Text("Podaj lokalizację")
+            }
+
+            Text("Zaznacz lokalizację na mapie:")
+
+            GoogleMap(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp),
+                cameraPositionState = cameraPositionState,
+                onMapClick = { latLng ->
+                    latitude = latLng.latitude
+                    longitude = latLng.longitude
+                }
+            ) {
+                Marker(
+                    state = MarkerState(position = LatLng(latitude, longitude)),
+                    title = "Lokalizacja campspota",
+                    snippet = "Kliknij na mapie, aby zmienić"
+                )
             }
 
             OutlinedTextField(
@@ -234,7 +275,7 @@ fun AddCampSpotScreen(
                     locationError = locationName.isBlank()
 
                     if (!nameError && !locationError) {
-                        onSave(name, locationName, description, accessTips, packingTips)
+                        onSave(name, locationName, description, accessTips, packingTips, latitude, longitude)
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
