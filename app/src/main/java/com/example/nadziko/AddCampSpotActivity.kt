@@ -35,7 +35,8 @@ class AddCampSpotActivity : ComponentActivity() {
 
     private val viewModel: CampSpotViewModel by viewModels {
         CampSpotViewModelFactory(
-            (application as NadzikoApplication).repository
+            (application as NadzikoApplication).repository,
+            (application as NadzikoApplication).ratingRepository
         )
     }
 
@@ -43,6 +44,9 @@ class AddCampSpotActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        val sessionManager = (application as NadzikoApplication).sessionManager
+        val userId = sessionManager.getUserId()
 
         val spotId = intent.getIntExtra("spot_id", -1)
         val isEditMode = spotId != -1
@@ -106,7 +110,8 @@ class AddCampSpotActivity : ComponentActivity() {
                                     locationName = locationName,
                                     description = description,
                                     accessTips = accessTips,
-                                    packingTips = packingTips
+                                    packingTips = packingTips,
+                                    createdBy = userId
                                 )
                             }
 

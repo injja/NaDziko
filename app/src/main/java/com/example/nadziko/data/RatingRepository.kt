@@ -8,8 +8,12 @@ class RatingRepository(
 
     val allRatings: Flow<List<Rating>> = ratingDao.getAllRatings()
 
-    fun getRatingsForSpot(spotId: Int): Flow<List<Rating>> {
-        return ratingDao.getRatingsForSpot(spotId)
+//    fun getRatingsForSpot(spotId: Int): Flow<List<Rating>> {
+//        return ratingDao.getRatingsForSpot(spotId)
+//    }
+
+    fun getRatingsWithAuthorsForSpot(spotId: Int): Flow<Map<Rating, User>> {
+        return ratingDao.getRatingsWithAuthorsForSpot(spotId)
     }
 
     suspend fun getRatingById(id: Int): Rating? {
@@ -46,7 +50,7 @@ class RatingRepository(
         return ratingDao.getAverageRatingForSpot(spotId)
     }
 
-    suspend fun getRatingsForUser(userId: Int, spotId: Int): Rating? {
+    suspend fun getRatingForSpotByUser(spotId: Int, userId: Int): Rating? {
         return ratingDao.getRatingForSpotByUser(spotId, userId)
     }
 }

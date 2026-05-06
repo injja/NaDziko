@@ -5,14 +5,19 @@ import kotlinx.coroutines.flow.Flow
 class CampSpotRepository(
     private val campSpotDao: CampSpotDao
 ) {
-    val allSpots: Flow<List<CampSpot>> = campSpotDao.getAllSpots()
+    val allSpotsWithAuthors: Flow<Map<CampSpot, User>> = campSpotDao.getAllSpotsWithAuthors()
+
+    fun getSpotWithAuthorById(id: Int): Flow<Map<CampSpot, User>> {
+        return campSpotDao.getSpotWithAuthorById(id)
+    }
 
     suspend fun addSpot(
         name: String,
         locationName: String,
         description: String,
         accessTips: String,
-        packingTips: String
+        packingTips: String,
+        createdBy: Int
     ) {
         val spot = CampSpot(
             name = name,
@@ -20,7 +25,8 @@ class CampSpotRepository(
             description = description,
             accessTips = accessTips,
             packingTips = packingTips,
-            rating = 0f
+            rating = 0f,
+            createdBy = createdBy
         )
 
         campSpotDao.insertSpot(spot)
