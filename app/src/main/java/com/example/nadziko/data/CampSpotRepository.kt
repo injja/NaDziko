@@ -17,7 +17,9 @@ class CampSpotRepository(
         description: String,
         accessTips: String,
         packingTips: String,
-        createdBy: Int
+        createdBy: Int,
+        latitude: Double,
+        longitude: Double
     ) {
         val spot = CampSpot(
             name = name,
@@ -26,7 +28,9 @@ class CampSpotRepository(
             accessTips = accessTips,
             packingTips = packingTips,
             rating = 0f,
-            createdBy = createdBy
+            createdBy = createdBy,
+            latitude = latitude,
+            longitude = longitude,
         )
 
         campSpotDao.insertSpot(spot)

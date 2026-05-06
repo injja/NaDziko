@@ -69,6 +69,10 @@ class MainActivity : ComponentActivity() {
                         val intent = Intent(this, AddCampSpotActivity::class.java)
                         addSpotLauncher.launch(intent)
                     },
+                    onMapClick = {
+                        val intent = Intent(this, MapActivity::class.java)
+                        startActivity(intent)
+                    },
                     onSpotClick = { spotId ->
                         val intent = Intent(this, CampSpotDetailsActivity::class.java)
                         intent.putExtra("spot_id", spotId)
@@ -89,6 +93,7 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(
     spots: List<CampSpotListItem>,
     onAddClick: () -> Unit,
+    onMapClick: () -> Unit,
     onSpotClick: (Int) -> Unit,
     onProfileClick: () -> Unit
 ) {
@@ -119,6 +124,12 @@ fun MainScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Dodaj nowe miejsce")
+            }
+            Button(
+                onClick = onMapClick,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Pokaż mapę miejscówek")
             }
 
             if (spots.isEmpty()) {

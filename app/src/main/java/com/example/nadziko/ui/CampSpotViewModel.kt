@@ -56,7 +56,9 @@ class CampSpotViewModel(
         description: String,
         accessTips: String,
         packingTips: String,
-        createdBy: Int
+        createdBy: Int,
+        latitude: Double,
+        longitude: Double
     ) {
         viewModelScope.launch {
             repository.addSpot(
@@ -65,7 +67,9 @@ class CampSpotViewModel(
                 description = description,
                 accessTips = accessTips,
                 packingTips = packingTips,
-                createdBy = createdBy
+                createdBy = createdBy,
+                latitude = latitude,
+                longitude = longitude
             )
         }
     }
