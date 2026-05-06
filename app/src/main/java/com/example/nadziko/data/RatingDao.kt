@@ -25,8 +25,13 @@ interface RatingDao {
     @Update
     suspend fun updateRating(rating: Rating)
 
-    @Query("SELECT * FROM ratings WHERE campSpotId = :spotId ORDER BY createdAt DESC")
-    fun getRatingsForSpot(spotId: Int): Flow<List<Rating>>
+    @Query("""
+        SELECT * FROM ratings 
+        JOIN users ON ratings.userId = users.id 
+        WHERE campSpotId = :spotId 
+        ORDER BY ratings.createdAt DESC
+    """)
+    fun getRatingsWithAuthorsForSpot(spotId: Int): Flow<Map<Rating, User>>
 
     @Query("SELECT AVG(rate) FROM ratings WHERE campSpotId = :spotId")
     fun getAverageRatingForSpot(spotId: Int): Flow<Float?>

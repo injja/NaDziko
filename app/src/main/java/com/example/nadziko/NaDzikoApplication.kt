@@ -4,6 +4,7 @@ import android.app.Application
 import com.example.nadziko.data.AppDatabase
 import com.example.nadziko.data.CampSpotRepository
 import com.example.nadziko.data.RatingRepository
+import com.example.nadziko.data.SessionManager
 import com.example.nadziko.data.UserRepository
 
 class NadzikoApplication : Application() {
@@ -11,4 +12,5 @@ class NadzikoApplication : Application() {
     val repository by lazy { CampSpotRepository(database.campSpotDao()) }
     val ratingRepository by lazy { RatingRepository(database.ratingDao()) }
     val userRepository by lazy { UserRepository(database.userDao()) }
+    val sessionManager by lazy { SessionManager(this) }
 }
