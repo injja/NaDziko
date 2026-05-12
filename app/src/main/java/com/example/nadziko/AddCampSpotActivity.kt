@@ -37,7 +37,14 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.OutlinedButton
 class AddCampSpotActivity : ComponentActivity() {
 
     private val viewModel: CampSpotViewModel by viewModels {
@@ -229,22 +236,37 @@ fun AddCampSpotScreen(
                 Text("Podaj lokalizację")
             }
 
-            Text("Zaznacz lokalizację na mapie:")
+            val context = LocalContext.current
 
-            GoogleMap(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp),
-                cameraPositionState = cameraPositionState,
-                onMapClick = { latLng ->
-                    latitude = latLng.latitude
-                    longitude = latLng.longitude
+            val mapLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.StartActivityForResult()
+            ) { result ->
+                if (result.resultCode == Activity.RESULT_OK) {
+                    result.data?.let { data ->
+                        latitude = data.getDoubleExtra("latitude", latitude)
+                        longitude = data.getDoubleExtra("longitude", longitude)
+                    }
                 }
+            }
+
+            OutlinedButton(
+                onClick = {
+                    val intent = Intent(context, FullScreenMapActivity::class.java).apply {
+                        putExtra("latitude", latitude)
+                        putExtra("longitude", longitude)
+                        putExtra("zoom", if (existingSpot != null) 13f else 6f)
+                    }
+                    mapLauncher.launch(intent)
+                },
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Marker(
-                    state = MarkerState(position = LatLng(latitude, longitude)),
-                    title = "Lokalizacja campspota",
-                    snippet = "Kliknij na mapie, aby zmienić"
+                Icon(Icons.Filled.LocationOn, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    if (latitude == 52.0 && longitude == 19.0 && existingSpot == null)
+                        "Wybierz lokalizację na mapie"
+                    else
+                        "Lokalizacja: %.4f, %.4f".format(latitude, longitude)
                 )
             }
 
