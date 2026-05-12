@@ -8,10 +8,6 @@ class RatingRepository(
 
     val allRatings: Flow<List<Rating>> = ratingDao.getAllRatings()
 
-//    fun getRatingsForSpot(spotId: Int): Flow<List<Rating>> {
-//        return ratingDao.getRatingsForSpot(spotId)
-//    }
-
     fun getRatingsWithAuthorsForSpot(spotId: Int): Flow<Map<Rating, User>> {
         return ratingDao.getRatingsWithAuthorsForSpot(spotId)
     }
@@ -26,6 +22,15 @@ class RatingRepository(
         rate: Int,
         comment: String
     ) {
+        addRatingWithId(campSpotId, userId, rate, comment)
+    }
+
+    suspend fun addRatingWithId(
+        campSpotId: Int,
+        userId: Int,
+        rate: Int,
+        comment: String
+    ): Long {
         val rating = Rating(
             campSpotId = campSpotId,
             userId = userId,
@@ -33,7 +38,7 @@ class RatingRepository(
             comment = comment.trim()
         )
 
-        ratingDao.insertRating(rating)
+        return ratingDao.insertRating(rating)
     }
 
     suspend fun updateRating(rating: Rating) {
