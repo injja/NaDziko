@@ -7,6 +7,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -20,10 +22,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.nadziko.data.CampSpot
 import com.example.nadziko.data.Rating
+import com.example.nadziko.data.SpotImage
 import com.example.nadziko.data.User
 import com.example.nadziko.ui.CampSpotViewModel
 import com.example.nadziko.ui.CampSpotViewModelFactory
@@ -52,6 +57,7 @@ class CampSpotDetailsActivity : ComponentActivity() {
                 val spotMap by viewModel.getSpotWithAuthor(spotId).collectAsState(initial = emptyMap())
                 val ratingsMap by viewModel.getRatingsWithAuthors(spotId).collectAsState(initial = emptyMap())
                 val averageRating by viewModel.getAverageRatingForSpot(spotId).collectAsState(initial = 0f)
+                val images by viewModel.getImagesForSpot(spotId).collectAsState(initial = emptyList())
                 
                 val spot = spotMap.keys.firstOrNull()
                 val author = spotMap.values.firstOrNull()
@@ -60,6 +66,7 @@ class CampSpotDetailsActivity : ComponentActivity() {
                     spot = spot,
                     author = author,
                     ratings = ratingsMap,
+                    images = images,
                     averageRating = averageRating ?: 0f,
                     isCreator = spot?.createdBy == currentUserId,
                     onBack = { finish() },
@@ -87,6 +94,7 @@ fun CampSpotDetailsScreen(
     spot: CampSpot?,
     author: User?,
     ratings: Map<Rating, User>,
+    images: List<SpotImage>,
     averageRating: Float,
     isCreator: Boolean,
     onBack: () -> Unit,
@@ -164,6 +172,29 @@ fun CampSpotDetailsScreen(
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
+
+                    if (images.isNotEmpty()) {
+                        Text("Galeria zdjęć", style = MaterialTheme.typography.titleMedium)
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth().height(200.dp)
+                        ) {
+                            items(images) { image ->
+                                Card(
+                                    modifier = Modifier.width(300.dp).fillMaxHeight(),
+                                    shape = MaterialTheme.shapes.medium
+                                ) {
+                                    AsyncImage(
+                                        model = image.imageUri,
+                                        contentDescription = null,
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
+                            }
+                        }
+                    }
+
                     Text("Lokalizacja: ${spot.locationName}", style = MaterialTheme.typography.titleMedium)
                     Text("Opis: ${spot.description}")
                     Text("Jak dotrzeć: ${spot.accessTips}")
