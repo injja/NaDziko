@@ -255,6 +255,7 @@ fun AddCampSpotScreen(
                         putExtra("latitude", latitude)
                         putExtra("longitude", longitude)
                         putExtra("zoom", if (existingSpot != null) 13f else 6f)
+                        putExtra("has_existing_location", existingSpot != null || (latitude != 52.0 || longitude != 19.0))
                     }
                     mapLauncher.launch(intent)
                 },
