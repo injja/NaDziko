@@ -75,7 +75,7 @@ class FullScreenMapActivity : ComponentActivity() {
                                 longitude = latLng.longitude
                             }
                         ) {
-                            Marker(
+                            Marker( 
                                 state = MarkerState(position = LatLng(latitude, longitude)),
                                 title = "Wybrana lokalizacja"
                             )

@@ -251,7 +251,7 @@ fun AddCampSpotScreen(
 
             OutlinedButton(
                 onClick = {
-                    val intent = Intent(context, FullScreenMapActivity::class.java).apply {
+                    val intent = Intent(context, FullScreenMapActivity::class.java).apply { 
                         putExtra("latitude", latitude)
                         putExtra("longitude", longitude)
                         putExtra("zoom", if (existingSpot != null) 13f else 6f)
