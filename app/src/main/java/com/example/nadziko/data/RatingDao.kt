@@ -17,7 +17,7 @@ interface RatingDao {
     suspend fun getRatingById(id: Int): Rating?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertRating(rating: Rating)
+    suspend fun insertRating(rating: Rating): Long
 
     @Query("DELETE FROM ratings WHERE id = :id")
     suspend fun deleteRatingById(id: Int)

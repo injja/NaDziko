@@ -6,8 +6,8 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [CampSpot::class, User::class, Rating::class],
-    version = 4,
+    entities = [CampSpot::class, User::class, Rating::class, SpotImage::class],
+    version = 5,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -15,6 +15,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun campSpotDao(): CampSpotDao
     abstract fun ratingDao(): RatingDao
     abstract fun userDao(): UserDao
+    abstract fun spotImageDao(): SpotImageDao
 
     companion object {
         @Volatile

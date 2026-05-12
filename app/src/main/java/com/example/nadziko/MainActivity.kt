@@ -44,7 +44,8 @@ class MainActivity : ComponentActivity() {
     private val viewModel: CampSpotViewModel by viewModels {
         CampSpotViewModelFactory(
             (application as NadzikoApplication).repository,
-            (application as NadzikoApplication).ratingRepository
+            (application as NadzikoApplication).ratingRepository,
+            (application as NadzikoApplication).spotImageRepository
         )
     }
 

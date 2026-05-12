@@ -21,6 +21,19 @@ class CampSpotRepository(
         latitude: Double,
         longitude: Double
     ) {
+        addSpotWithId(name, locationName, description, accessTips, packingTips, createdBy, latitude, longitude)
+    }
+
+    suspend fun addSpotWithId(
+        name: String,
+        locationName: String,
+        description: String,
+        accessTips: String,
+        packingTips: String,
+        createdBy: Int,
+        latitude: Double,
+        longitude: Double
+    ): Long {
         val spot = CampSpot(
             name = name,
             locationName = locationName,
@@ -33,7 +46,7 @@ class CampSpotRepository(
             longitude = longitude,
         )
 
-        campSpotDao.insertSpot(spot)
+        return campSpotDao.insertSpot(spot)
     }
 
     suspend fun getSpotById(id: Int): CampSpot? {

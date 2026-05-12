@@ -34,7 +34,8 @@ class CampSpotDetailsActivity : ComponentActivity() {
     private val viewModel: CampSpotViewModel by viewModels {
         CampSpotViewModelFactory(
             (application as NadzikoApplication).repository,
-            (application as NadzikoApplication).ratingRepository
+            (application as NadzikoApplication).ratingRepository,
+            (application as NadzikoApplication).spotImageRepository
         )
     }
 
@@ -178,8 +179,7 @@ fun CampSpotDetailsScreen(
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                        verticalAlignment = Alignment.CenterVertically) {
                         Text("Opinie (${ratings.size})", style = MaterialTheme.typography.titleMedium)
                         Button(onClick = { showAddRatingDialog = true }) {
                             Text("Dodaj opinię")

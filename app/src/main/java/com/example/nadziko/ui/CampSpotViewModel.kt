@@ -7,6 +7,8 @@ import com.example.nadziko.data.CampSpot
 import com.example.nadziko.data.CampSpotRepository
 import com.example.nadziko.data.Rating
 import com.example.nadziko.data.RatingRepository
+import com.example.nadziko.data.SpotImage
+import com.example.nadziko.data.SpotImageRepository
 import com.example.nadziko.data.User
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -23,7 +25,8 @@ data class CampSpotListItem(
 
 class CampSpotViewModel(
     private val repository: CampSpotRepository,
-    private val ratingRepository: RatingRepository
+    private val ratingRepository: RatingRepository,
+    private val imageRepository: SpotImageRepository
 ) : ViewModel() {
 
     val allSpotsWithAuthors: Flow<Map<CampSpot, User>> = repository.allSpotsWithAuthors
@@ -58,10 +61,11 @@ class CampSpotViewModel(
         packingTips: String,
         createdBy: Int,
         latitude: Double,
-        longitude: Double
+        longitude: Double,
+        imageUris: List<String> = emptyList()
     ) {
         viewModelScope.launch {
-            repository.addSpot(
+            val spotId = repository.addSpotWithId(
                 name = name,
                 locationName = locationName,
                 description = description,
@@ -71,6 +75,13 @@ class CampSpotViewModel(
                 latitude = latitude,
                 longitude = longitude
             )
+            
+            if (imageUris.isNotEmpty()) {
+                val images = imageUris.map { uri ->
+                    SpotImage(campSpotId = spotId.toInt(), imageUri = uri)
+                }
+                imageRepository.insertImages(images)
+            }
         }
     }
 
@@ -98,25 +109,36 @@ class CampSpotViewModel(
         return ratingRepository.getRatingsWithAuthorsForSpot(spotId)
     }
 
-    fun addRating(campSpotId: Int, userId: Int, rate: Int, comment: String) {
+    fun addRating(campSpotId: Int, userId: Int, rate: Int, comment: String, imageUris: List<String> = emptyList()) {
         viewModelScope.launch {
-            ratingRepository.addRating(campSpotId, userId, rate, comment)
+            val ratingId = ratingRepository.addRatingWithId(campSpotId, userId, rate, comment)
+            if (imageUris.isNotEmpty()) {
+                val images = imageUris.map { uri ->
+                    SpotImage(campSpotId = campSpotId, ratingId = ratingId.toInt(), imageUri = uri)
+                }
+                imageRepository.insertImages(images)
+            }
         }
     }
 
     fun getAverageRatingForSpot(spotId: Int): Flow<Float?> {
         return ratingRepository.getAverageRatingForSpot(spotId)
     }
+
+    fun getImagesForSpot(spotId: Int): Flow<List<SpotImage>> {
+        return imageRepository.getImagesForSpot(spotId)
+    }
 }
 
 class CampSpotViewModelFactory(
     private val repository: CampSpotRepository,
-    private val ratingRepository: RatingRepository
+    private val ratingRepository: RatingRepository,
+    private val imageRepository: SpotImageRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(CampSpotViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return CampSpotViewModel(repository, ratingRepository) as T
+            return CampSpotViewModel(repository, ratingRepository, imageRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
