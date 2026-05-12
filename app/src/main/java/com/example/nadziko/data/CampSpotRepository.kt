@@ -3,7 +3,8 @@ package com.example.nadziko.data
 import kotlinx.coroutines.flow.Flow
 
 class CampSpotRepository(
-    private val campSpotDao: CampSpotDao
+    private val campSpotDao: CampSpotDao,
+    val folderDao: FolderDao // DODANO DOSTĘP DO FOLDERÓW
 ) {
     val allSpotsWithAuthors: Flow<Map<CampSpot, User>> = campSpotDao.getAllSpotsWithAuthors()
 
@@ -59,5 +60,17 @@ class CampSpotRepository(
 
     suspend fun updateSpot(spot: CampSpot) {
         campSpotDao.updateSpot(spot)
+    }
+
+    suspend fun saveSpotToFolder(folderId: Int, campSpotId: Int) {
+        folderDao.saveSpotToFolder(SavedSpotCrossRef(folderId, campSpotId))
+    }
+    // Dodaj te metody wewnątrz klasy CampSpotRepository:
+    suspend fun removeSpotFromAllFolders(spotId: Int) {
+        folderDao.removeSpotFromAllFolders(spotId)
+    }
+
+    fun isSpotSaved(spotId: Int): Flow<Boolean> {
+        return folderDao.isSpotSaved(spotId)
     }
 }

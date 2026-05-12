@@ -5,16 +5,21 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.nadziko.data.CampSpot
 import com.example.nadziko.data.CampSpotRepository
+import com.example.nadziko.data.Folder
 import com.example.nadziko.data.Rating
 import com.example.nadziko.data.RatingRepository
 import com.example.nadziko.data.SpotImage
 import com.example.nadziko.data.SpotImageRepository
 import com.example.nadziko.data.User
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 data class CampSpotListItem(
@@ -28,6 +33,62 @@ class CampSpotViewModel(
     private val ratingRepository: RatingRepository,
     private val imageRepository: SpotImageRepository
 ) : ViewModel() {
+
+    // --- LOGIKA FOLDERÓW ---
+    val allFolders: StateFlow<List<Folder>> = repository.folderDao.getAllFolders()
+        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
+    private val _selectedFolderId = MutableStateFlow<Int?>(null)
+
+    val spotsInSelectedFolder: Flow<List<CampSpot>> = _selectedFolderId.flatMapLatest { id ->
+        if (id == null) flowOf(emptyList())
+        else repository.folderDao.getSpotsForFolder(id)
+    }
+
+    fun selectFolder(folderId: Int) {
+        _selectedFolderId.value = folderId
+    }
+
+    fun addFolder(name: String) {
+        viewModelScope.launch {
+            repository.folderDao.insertFolder(Folder(name = name))
+        }
+    }
+
+    fun saveSpotToFolder(folderId: Int, campSpotId: Int) {
+        viewModelScope.launch {
+            repository.saveSpotToFolder(folderId, campSpotId)
+        }
+    }
+
+    // Dodaj do sekcji // --- LOGIKA FOLDERÓW ---:
+    fun isSpotSaved(spotId: Int): Flow<Boolean> {
+        return repository.isSpotSaved(spotId)
+    }
+
+    fun removeSpotFromAllFolders(spotId: Int) {
+        viewModelScope.launch {
+            repository.removeSpotFromAllFolders(spotId)
+        }
+    }
+
+    // Dodaj te metody do klasy CampSpotViewModel:
+
+    fun getFolderIdsForSpot(spotId: Int): Flow<List<Int>> {
+        return repository.folderDao.getFolderIdsForSpot(spotId)
+    }
+
+    fun toggleSpotInFolder(folderId: Int, spotId: Int, shouldBeSaved: Boolean) {
+        viewModelScope.launch {
+            val crossRef = com.example.nadziko.data.SavedSpotCrossRef(folderId, spotId)
+            if (shouldBeSaved) {
+                repository.folderDao.saveSpotToFolder(crossRef)
+            } else {
+                repository.folderDao.deleteSavedSpot(crossRef)
+            }
+        }
+    }
+    // ------------------------
 
     val allSpotsWithAuthors: Flow<Map<CampSpot, User>> = repository.allSpotsWithAuthors
 
@@ -75,7 +136,7 @@ class CampSpotViewModel(
                 latitude = latitude,
                 longitude = longitude
             )
-            
+
             if (imageUris.isNotEmpty()) {
                 val images = imageUris.map { uri ->
                     SpotImage(campSpotId = spotId.toInt(), imageUri = uri)
@@ -128,6 +189,8 @@ class CampSpotViewModel(
     fun getImagesForSpot(spotId: Int): Flow<List<SpotImage>> {
         return imageRepository.getImagesForSpot(spotId)
     }
+
+
 }
 
 class CampSpotViewModelFactory(

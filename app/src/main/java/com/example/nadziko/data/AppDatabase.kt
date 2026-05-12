@@ -6,8 +6,15 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [CampSpot::class, User::class, Rating::class, SpotImage::class],
-    version = 5,
+    entities = [
+        CampSpot::class,
+        User::class,
+        Rating::class,
+        SpotImage::class,
+        Folder::class,
+        SavedSpotCrossRef::class
+    ],
+    version = 6,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -16,6 +23,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun ratingDao(): RatingDao
     abstract fun userDao(): UserDao
     abstract fun spotImageDao(): SpotImageDao
+    abstract fun folderDao(): FolderDao // DODANO
 
     companion object {
         @Volatile
@@ -28,8 +36,8 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "nadziko_database"
                 )
-                .fallbackToDestructiveMigration(true)
-                .build()
+                    .fallbackToDestructiveMigration(true)
+                    .build()
                 INSTANCE = instance
                 instance
             }
