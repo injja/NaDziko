@@ -27,6 +27,13 @@ data class CampSpot(
     val packingTips: String,
     val rating: Float = 0f,
     val createdBy: Int,
+
+    // Nowe pola flag z projektu graficznego
+    val hasWaterAccess: Boolean = false,
+    val allowsFire: Boolean = false,
+    val hasLteCoverage: Boolean = false,
+    val requires4x4: Boolean = false,
+
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()
 )
