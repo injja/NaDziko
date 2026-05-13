@@ -154,15 +154,16 @@ fun SavedSpotCard(
     onClick: () -> Unit
 ) {
     val images by viewModel.getImagesForSpot(spot.id).collectAsState(initial = emptyList())
+    // NOWE: Pobieramy aktualną średnią ocenę dla tego konkretnego miejsca
+    val averageRating by viewModel.getAverageRatingForSpot(spot.id).collectAsState(initial = null)
 
     Card(
         modifier = Modifier.fillMaxWidth().clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column {
-            // Obrazek
+        Column(modifier = Modifier.fillMaxWidth()) {
             Box(modifier = Modifier.fillMaxWidth().height(110.dp).background(Color(0xFFE0E0E0))) {
                 if (images.isNotEmpty()) {
                     AsyncImage(
@@ -176,17 +177,22 @@ fun SavedSpotCard(
                 }
             }
 
-            // Dane tekstowe
-            Column(modifier = Modifier.padding(10.dp)) {
+            Column(modifier = Modifier.fillMaxWidth().padding(10.dp)) {
                 Text(spot.name, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.Black, maxLines = 1)
                 Text(spot.locationName, fontSize = 12.sp, color = Color.Gray, maxLines = 1)
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(top = 6.dp)
+                    modifier = Modifier.padding(top = 6.dp).fillMaxWidth()
                 ) {
                     Icon(Icons.Default.Star, null, tint = BrandOrange, modifier = Modifier.size(14.dp))
-                    Text(text = " " + String.format("%.1f", spot.rating), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    // WYŚWIETLANIE POBRANEJ OCENY
+                    Text(
+                        text = " " + (averageRating?.let { String.format("%.1f", it) } ?: "brak"),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
 
                     Spacer(Modifier.weight(1f))
                     Surface(shape = RoundedCornerShape(4.dp), color = LightBg) {
