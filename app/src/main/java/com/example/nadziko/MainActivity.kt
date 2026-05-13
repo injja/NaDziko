@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,9 +16,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.*
 import com.example.nadziko.ui.CampSpotListItem
@@ -26,6 +29,9 @@ import com.example.nadziko.ui.CampSpotViewModelFactory
 import com.example.nadziko.ui.SavedScreen
 import com.example.nadziko.ui.Screen
 import com.example.nadziko.ui.theme.NaDzikoTheme
+
+private val DarkGreen = Color(0xFF1E3524)
+private val BrandOrange = Color(0xFFD66A27)
 
 class MainActivity : ComponentActivity() {
 
@@ -88,36 +94,65 @@ fun MainAppScreen(
 
     Scaffold(
         bottomBar = {
-            NavigationBar(containerColor = MaterialTheme.colorScheme.surfaceVariant) {
-                val navBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentRoute = navBackStackEntry?.destination?.route
+            Surface(
+                shadowElevation = 8.dp, // Delikatny cień nad paskiem
+                color = Color.White
+            ) {
+                NavigationBar(
+                    containerColor = Color.White, // Czyste białe tło
+                    tonalElevation = 0.dp, // Usuwa domyślne przyciemnienie Material 3
+                    modifier = Modifier.height(80.dp) // Lekko wyższy pasek dla lepszych proporcji
+                ) {
+                    val navBackStackEntry by navController.currentBackStackEntryAsState()
+                    val currentRoute = navBackStackEntry?.destination?.route
 
-                items.forEach { screen ->
-                    NavigationBarItem(
-                        icon = { Icon(screen.icon, contentDescription = screen.title) },
-                        label = { Text(screen.title) },
-                        selected = currentRoute == screen.route,
-                        onClick = {
-                            navController.navigate(screen.route) {
-                                popUpTo(navController.graph.startDestinationId) { saveState = true }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        }
-                    )
+                    items.forEach { screen ->
+                        val isSelected = currentRoute == screen.route
+
+                        NavigationBarItem(
+                            icon = {
+                                Icon(
+                                    imageVector = screen.icon,
+                                    contentDescription = screen.title,
+                                    modifier = Modifier.size(26.dp) // Nieco większe ikony
+                                )
+                            },
+                            label = {
+                                Text(
+                                    text = screen.title,
+                                    fontSize = 11.sp,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                )
+                            },
+                            selected = isSelected,
+                            onClick = {
+                                navController.navigate(screen.route) {
+                                    popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = BrandOrange, // Pomarańczowa ikona gdy aktywne
+                                selectedTextColor = BrandOrange, // Pomarańczowy tekst gdy aktywne
+                                unselectedIconColor = Color.LightGray, // Szare gdy nieaktywne
+                                unselectedTextColor = Color.LightGray,
+                                indicatorColor = Color.White // Ukrywa domyślne kółko/bąbelek z Material 3!
+                            )
+                        )
+                    }
                 }
             }
         }
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Screen.Search.route, // Startujemy od zakładki z listą
-            modifier = Modifier.padding(innerPadding)
+            startDestination = Screen.Search.route,
+            modifier = Modifier.padding(innerPadding).background(Color(0xFFF6F6F6)) // Jasnoszare tło dla całej aplikacji
         ) {
             composable(Screen.Map.route) {
-                // Tymczasowy przycisk otwierający Twoje stare MapActivity
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Button(onClick = onMapClick) { Text("Otwórz Pełną Mapę") }
+                    Button(onClick = onMapClick, colors = ButtonDefaults.buttonColors(containerColor = BrandOrange)) { Text("Otwórz Pełną Mapę") }
                 }
             }
             composable(Screen.Search.route) {
@@ -128,13 +163,12 @@ fun MainAppScreen(
             }
             composable(Screen.Discover.route) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Ekran Odkrywaj (W budowie)")
+                    Text("Ekran Odkrywaj (W budowie)", color = Color.Gray)
                 }
             }
             composable(Screen.Profile.route) {
-                // Tymczasowy przycisk otwierający stare ProfileSettingsActivity
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Button(onClick = onProfileClick) { Text("Przejdź do profilu") }
+                    Button(onClick = onProfileClick, colors = ButtonDefaults.buttonColors(containerColor = DarkGreen)) { Text("Przejdź do profilu") }
                 }
             }
         }
