@@ -15,6 +15,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,7 +29,6 @@ import androidx.navigation.compose.*
 import com.example.nadziko.ui.* // To importuje SavedScreen i Screen
 import com.example.nadziko.ui.theme.NaDzikoTheme
 
-// Kolory marki
 private val DarkGreen = Color(0xFF1E3524)
 private val BrandOrange = Color(0xFFD66A27)
 private val LightBg = Color(0xFFF6F6F6)
@@ -169,38 +170,34 @@ fun SpotsListScreen(
     }
 }
 
+
 @Composable
 fun BottomNavigationBar(navController: NavHostController, currentRoute: String?) {
     val items = listOf(Screen.Map, Screen.Search, Screen.Saved, Screen.Discover, Screen.Profile)
 
-    // Śledzimy "aktywną" zakładkę główną.
-    // Używamy rememberSaveable na wypadek obrotu ekranu.
     var selectedTab by remember { mutableStateOf(Screen.Search.route) }
 
-    // Aktualizujemy wybraną zakładkę tylko wtedy, gdy currentRoute to jedna z głównych zakładek.
-    // Gdy wchodzimy w "details/...", selectedTab pozostaje bez zmian (zapamiętuje zakładkę-matkę).
     if (currentRoute in items.map { it.route }) {
         selectedTab = currentRoute ?: Screen.Search.route
     }
 
     Surface(shadowElevation = 8.dp, color = Color.White) {
-        NavigationBar(containerColor = Color.White, tonalElevation = 0.dp, modifier = Modifier.height(80.dp)) {
+        NavigationBar(
+            containerColor = Color.White,
+            tonalElevation = 0.dp
+        ) {
             items.forEach { screen ->
-                // Zakładka jest podświetlona, jeśli to ona jest naszym `selectedTab`
                 val isSelected = selectedTab == screen.route
 
                 NavigationBarItem(
-                    icon = { Icon(screen.icon, screen.title, modifier = Modifier.size(26.dp)) },
-                    label = { Text(screen.title, fontSize = 11.sp, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium) },
+                    icon = { Icon(screen.icon, screen.title, modifier = Modifier.size(24.dp)) },
+                    label = { Text(screen.title, fontSize = 11.sp) },
                     selected = isSelected,
+                    alwaysShowLabel = true, // Możesz zmienić na false, jeśli 5 ikon z napisami nadal wydaje się zbyt gęsto
                     onClick = {
-                        // LOGIKA KLIKNIĘCIA:
                         if (isSelected && currentRoute?.startsWith("details") == true) {
-                            // 1. Jesteśmy w szczegółach miejscówki i klikamy ikonę aktywnej zakładki:
-                            // "Czyścimy" stos i wracamy do korzenia tej zakładki (np. pełnej listy Zapisanych)
                             navController.popBackStack(screen.route, inclusive = false)
                         } else {
-                            // 2. Standardowa zmiana zakładki na inną
                             navController.navigate(screen.route) {
                                 popUpTo(navController.graph.startDestinationId) { saveState = true }
                                 launchSingleTop = true
@@ -213,7 +210,7 @@ fun BottomNavigationBar(navController: NavHostController, currentRoute: String?)
                         selectedTextColor = BrandOrange,
                         unselectedIconColor = Color.LightGray,
                         unselectedTextColor = Color.LightGray,
-                        indicatorColor = Color.White
+                        indicatorColor = Color.Transparent
                     )
                 )
             }

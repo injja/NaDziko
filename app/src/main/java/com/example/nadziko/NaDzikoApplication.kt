@@ -10,7 +10,6 @@ import com.example.nadziko.data.UserRepository
 
 class NadzikoApplication : Application() {
     val database by lazy { AppDatabase.getDatabase(this) }
-    // DODANO database.folderDao() jako drugi argument
     val repository by lazy { CampSpotRepository(database.campSpotDao(), database.folderDao()) }
     val ratingRepository by lazy { RatingRepository(database.ratingDao()) }
     val userRepository by lazy { UserRepository(database.userDao()) }

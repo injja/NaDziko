@@ -38,7 +38,7 @@ class FullScreenMapActivity : ComponentActivity() {
         val initialLat = intent.getDoubleExtra("latitude", 52.0)
         val initialLng = intent.getDoubleExtra("longitude", 19.0)
         val initialZoom = intent.getFloatExtra("zoom", 6f)
-        // Czy przekazano już konkretną lokalizację (edycja / wcześniej wybrana)
+
         val hasExistingLocation = intent.getBooleanExtra("has_existing_location", false)
 
         setContent {
@@ -52,7 +52,7 @@ class FullScreenMapActivity : ComponentActivity() {
                     position = CameraPosition.fromLatLngZoom(LatLng(latitude, longitude), zoom)
                 }
 
-                // Launcher do prośby o uprawnienia
+
                 val permissionLauncher = rememberLauncherForActivityResult(
                     contract = ActivityResultContracts.RequestMultiplePermissions()
                 ) { permissions ->
@@ -73,7 +73,6 @@ class FullScreenMapActivity : ComponentActivity() {
                     }
                 }
 
-                // Pobierz lokalizację przy starcie tylko jeśli nie ma już wybranej
                 LaunchedEffect(Unit) {
                     if (!hasExistingLocation) {
                         permissionLauncher.launch(

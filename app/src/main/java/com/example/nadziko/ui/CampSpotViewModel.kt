@@ -34,7 +34,6 @@ class CampSpotViewModel(
     private val imageRepository: SpotImageRepository
 ) : ViewModel() {
 
-    // --- LOGIKA FOLDERÓW ---
     val allFolders: StateFlow<List<Folder>> = repository.folderDao.getAllFolders()
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
@@ -61,7 +60,6 @@ class CampSpotViewModel(
         }
     }
 
-    // Dodaj do sekcji // --- LOGIKA FOLDERÓW ---:
     fun isSpotSaved(spotId: Int): Flow<Boolean> {
         return repository.isSpotSaved(spotId)
     }
@@ -71,8 +69,6 @@ class CampSpotViewModel(
             repository.removeSpotFromAllFolders(spotId)
         }
     }
-
-    // Dodaj te metody do klasy CampSpotViewModel:
 
     fun getFolderIdsForSpot(spotId: Int): Flow<List<Int>> {
         return repository.folderDao.getFolderIdsForSpot(spotId)
@@ -88,7 +84,6 @@ class CampSpotViewModel(
             }
         }
     }
-    // ------------------------
 
     val allSpotsWithAuthors: Flow<Map<CampSpot, User>> = repository.allSpotsWithAuthors
 

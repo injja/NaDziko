@@ -154,7 +154,7 @@ fun SavedSpotCard(
     onClick: () -> Unit
 ) {
     val images by viewModel.getImagesForSpot(spot.id).collectAsState(initial = emptyList())
-    // NOWE: Pobieramy aktualną średnią ocenę dla tego konkretnego miejsca
+
     val averageRating by viewModel.getAverageRatingForSpot(spot.id).collectAsState(initial = null)
 
     Card(
@@ -186,7 +186,7 @@ fun SavedSpotCard(
                     modifier = Modifier.padding(top = 6.dp).fillMaxWidth()
                 ) {
                     Icon(Icons.Default.Star, null, tint = BrandOrange, modifier = Modifier.size(14.dp))
-                    // WYŚWIETLANIE POBRANEJ OCENY
+
                     Text(
                         text = " " + (averageRating?.let { String.format("%.1f", it) } ?: "brak"),
                         fontSize = 12.sp,
